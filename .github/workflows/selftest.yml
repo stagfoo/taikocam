@@ -1,0 +1,14 @@
+name: selftest
+on: [push, pull_request]
+jobs:
+  selftest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      # --no-keys never imports evdev, so the detection pipeline is testable
+      # without /dev/uinput or a camera.
+      - run: pip install opencv-python-headless numpy
+      - run: python taikocam.py --selftest --no-keys --headless

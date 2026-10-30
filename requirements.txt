@@ -1,0 +1,4 @@
+opencv-python
+numpy
+# evdev: install from your distro (needs kernel headers to build from pip)
+evdev; platform_system=="Linux"

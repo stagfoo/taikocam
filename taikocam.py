@@ -79,11 +79,30 @@ class Drum:
         self.pending = []           # (release_time, code)
         if not enabled:
             return
-        from evdev import UInput, ecodes
+        try:
+            from evdev import UInput, ecodes
+        except ImportError:
+            raise SystemExit(
+                "python-evdev is missing, so no key presses can be sent.\n"
+                "  Fedora/Nobara : sudo dnf install python3-evdev\n"
+                "  Debian/Ubuntu : sudo apt install python3-evdev\n"
+                "  Arch          : sudo pacman -S python-evdev\n"
+                "Or run with --no-keys to just watch hits.")
         self.ecodes = ecodes
         codes = [getattr(ecodes, k) for k in keys]
-        self.ui = UInput({ecodes.EV_KEY: codes}, name="TaikoCam Virtual Drum",
-                         version=1)
+        try:
+            self.ui = UInput({ecodes.EV_KEY: codes},
+                             name="TaikoCam Virtual Drum", version=1)
+        except (PermissionError, OSError) as exc:
+            raise SystemExit(
+                f"cannot open /dev/uinput ({exc}).\n"
+                "Grant access once, then log out and back in:\n"
+                "  echo 'KERNEL==\"uinput\", GROUP=\"input\", MODE=\"0660\", "
+                "OPTIONS+=\"static_node=uinput\"' "
+                "| sudo tee /etc/udev/rules.d/99-uinput.rules\n"
+                "  sudo usermod -aG input \"$USER\"\n"
+                "  sudo modprobe uinput && sudo udevadm control --reload\n"
+                "Or run with --no-keys to just watch hits.")
         self.codes = {k: getattr(ecodes, k) for k in keys}
 
     def tap(self, keyname, hold_s):
