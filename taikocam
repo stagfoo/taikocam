@@ -1,0 +1,3 @@
+#!/bin/bash
+# Launcher: runs taikocam inside its venv (OpenCV there, evdev from the system).
+exec "$HOME/Games/taikocam-venv/bin/python" "$HOME/Games/taikocam/taikocam.py" "$@"
